@@ -128,3 +128,37 @@ class Cine:
         print(f" Cliente más activo: {cliente_top} ({conteo_clientes[cliente_top]} asientos vendidos)")
         print(f" Asientos vendidos totales: {total_asientos_vendidos} / {capacidad_total}")
         print(f" Ocupación total del cine: {ocupacion:.2f}%\n")
+
+    def recomendar_funcion(self, pelicula):
+        if not self.salas:
+            print("No hay salas disponibles para hacer recomendaciones.")
+            return
+
+        sala = self.salas[0]  # por simplicidad usamos la primera sala
+        total_asientos = len(sala.asientos)
+        ocupados = sum(sala.asientos.values())
+        porcentaje_ocupacion = (ocupados / total_asientos) * 100
+
+        print(f"\nLa sala para '{pelicula.titulo}' tiene una ocupación del {porcentaje_ocupacion:.2f}%.")
+
+        if porcentaje_ocupacion >= 80:
+            print("⚠️ Esta función está bastante llena.")
+            # Buscar otra película con menos ocupación si existe
+            sugerida = None
+            menor_ocupacion = 100
+            for p in self.cartelera:
+                total_asientos = len(sala.asientos)
+                ocupados = sum(sala.asientos.values())
+                ocupacion_actual = (ocupados / total_asientos) * 100
+                if ocupacion_actual < menor_ocupacion:
+                    menor_ocupacion = ocupacion_actual
+                    sugerida = p
+
+            if sugerida and sugerida != pelicula:
+                print(f"🎬 Te recomendamos ver '{sugerida.titulo}', tiene solo {menor_ocupacion:.2f}% de ocupación.")
+            else:
+                print("No hay otra función con menor ocupación disponible.")
+        elif porcentaje_ocupacion <= 30:
+            print("✅ Excelente elección, la sala está bastante libre.")
+        else:
+            print(" La ocupación es moderada, hay buena disponibilidad de asientos.")
