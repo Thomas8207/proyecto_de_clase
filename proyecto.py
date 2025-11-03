@@ -96,3 +96,35 @@ class Cine:
                 print(f"Boleto {codigo} cancelado y asientos liberados.")
                 return
         print("No se encontró ningún boleto con ese código.")
+
+    def mostrar_estadisticas(self):
+        if not self.ventas:
+            print("No hay ventas registradas aún.")
+            return
+
+        conteo_peliculas = {}
+        conteo_horarios = {}
+        conteo_clientes = {}
+
+        total_asientos_vendidos = 0
+        for boleto in self.ventas:
+            num_asientos = len(boleto.asientos)
+            total_asientos_vendidos += num_asientos
+
+            conteo_peliculas[boleto.pelicula] = conteo_peliculas.get(boleto.pelicula, 0) + num_asientos
+            conteo_horarios[boleto.horario] = conteo_horarios.get(boleto.horario, 0) + num_asientos
+            conteo_clientes[boleto.cliente] = conteo_clientes.get(boleto.cliente, 0) + num_asientos
+
+        pelicula_top = max(conteo_peliculas, key=conteo_peliculas.get)
+        horario_top = max(conteo_horarios, key=conteo_horarios.get)
+        cliente_top = max(conteo_clientes, key=conteo_clientes.get)
+
+        capacidad_total = sum(len(sala.asientos) for sala in self.salas) if self.salas else 100
+        ocupacion = (total_asientos_vendidos / capacidad_total) * 100 if capacidad_total > 0 else 0.0
+
+        print("\n --- Estadísticas del Cine ---")
+        print(f" Película más vendida: {pelicula_top} ({conteo_peliculas[pelicula_top]} asientos vendidos)")
+        print(f" Horario más popular: {horario_top} ({conteo_horarios[horario_top]} asientos vendidos)")
+        print(f" Cliente más activo: {cliente_top} ({conteo_clientes[cliente_top]} asientos vendidos)")
+        print(f" Asientos vendidos totales: {total_asientos_vendidos} / {capacidad_total}")
+        print(f" Ocupación total del cine: {ocupacion:.2f}%\n")
