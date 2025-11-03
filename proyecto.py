@@ -1,7 +1,8 @@
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import List, Optional
+from typing import Optional
 import uuid
+from abc import ABC, abstractmethod
 
 class Cine:
     def __init__(self, nombre):
@@ -9,28 +10,50 @@ class Cine:
         self.salas = []
         self.cartelera = []
         self.ventas = []
+        self.usuarios = []
+
+    def registrar_usuario(self, nombre, correo, contraseña):
+        for u in self.usuarios:
+            if u.correo == correo:
+                print("⚠️ Ya existe un usuario registrado con ese correo.")
+                return None
+
+        nuevo_cliente = Cliente(nombre, correo, contraseña)
+        self.usuarios.append(nuevo_cliente)
+        print(f"✅ Usuario '{nombre}' registrado exitosamente.")
+        return nuevo_cliente
+
+    def iniciar_sesion(self, correo, contraseña):
+        for u in self.usuarios:
+            if u.correo == correo and u.contraseña == contraseña:
+                print(f"✅ Bienvenido de nuevo, {u.nombre}!")
+                return u
+        print("❌ Correo o contraseña incorrectos.")
+        return None
 
     def agregar_peliculas(self, Pelicula):
         self.cartelera.append(Pelicula)
-        print(f"Pelicula'{Pelicula.titulo}'agregada a la cartelera.")
+        print(f"Pelicula '{Pelicula.titulo}' agregada a la cartelera.")
 
     def mostrar_cartelera(self):
         if not self.cartelera:
             print("No hay peliculas en la cartelera actualmente.")
         else:
-            print(f"/n--- Cartelera del cine {self.nombre} ---")
+            print(f"\n--- Cartelera del cine {self.nombre} ---")
+            for p in self.cartelera:
+                p.mostrar_informacion()
 
     def vender_boleto(self, cliente, pelicula, horario, asientos):
         if pelicula not in self.cartelera:
-            print("la pelicula no esta en cartelera")
+            print("La pelicula no esta en cartelera")
             return
 
         if not pelicula.tiene_horario(horario):
-            print("el horario no esta disponible")
+            print("El horario no esta disponible")
             return
 
         if not self.salas:
-            print("no hay salas disponibles en el cine")
+            print("No hay salas disponibles en el cine")
             return
 
         sala = self.salas[0]
@@ -38,11 +61,11 @@ class Cine:
         try:
             disponibles = all(not sala.asientos[a] for a in asientos)
         except KeyError:
-            print("uno o mas asientos seleccionados no existen")
+            print("Uno o mas asientos seleccionados no existen")
             return
 
         if not disponibles:
-            print("uno o mas asientos ya estan ocupados")
+            print("Uno o mas asientos ya estan ocupados")
             return
 
         for a in asientos:
@@ -70,6 +93,6 @@ class Cine:
                         sala.asientos[a] = False
 
                 self.ventas.remove(boleto)
-                print(f"✅ Boleto {codigo} cancelado y asientos liberados.")
+                print(f"Boleto {codigo} cancelado y asientos liberados.")
                 return
-        print("❌ No se encontró ningún boleto con ese código.")
+        print("No se encontró ningún boleto con ese código.")
