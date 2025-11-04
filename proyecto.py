@@ -247,3 +247,72 @@ class Boleto:
         else:
             print("Coleccionable: Ninguno")
         print("------------------------------\n")
+
+@dataclass
+class Persona(ABC):
+    nombre: str
+    correo: str
+
+    @abstractmethod
+    def mostrar_informacion(self): ...
+
+
+class Cliente(Persona):
+    def __init__(self, nombre: str, correo: str, contraseña):
+        super().__init__(nombre, correo)
+        self.contraseña = contraseña
+        self.boletos = []
+
+
+    def comprar_boleto(self, cine, pelicula, horario, asientos):
+        print(f"\n{self.nombre} está comprando boletos para '{pelicula.titulo}' en el horario {horario}...")
+        cine.vender_boleto(self, pelicula, horario, asientos)
+
+
+    def cancelar_boletos(self, cine, codigo):
+        boleto_encontrado = None
+        for b in self.boletos:
+            if b.codigo == codigo:
+                boleto_encontrado = b
+                break
+            if boleto_encontrado:
+                cine.cancelar_boletos(codigo)
+                self.boletos.remove(boleto_encontrado)
+                print(f"{self.nombre} cancelo el boleto con codigo {codigo}")
+            else:
+                print(f"No se encontro ningun boleto con el codigo {codigo}en el historial del cliente")
+
+
+    def mostrar_boletos(self):
+        if not self.boletos:
+            print(f"\n{self.nombre} no tiene boletos comprados actualmente.")
+        else:
+            print (f"\n--- Boletos de {self.nombre} ---")
+            for b in self.boletos:
+                b.mostrar_detalles()
+
+    def mostrar_informacion(self):
+        print(f"cliente: {self.nombre} - {self.correo}")
+
+
+class Administrador(Cliente):
+    def __init__(self, nombre: str, id_admin: str, correo: str, contraseña: str):
+        super().__init__(nombre, correo, contraseña)
+        self.id_admin = id_admin
+
+
+    def agregar_pelicula(self, cine, pelicula):
+        print(f"\n{self.nombre} está agregando una nueva película al cine '{cine.nombre}'...")
+
+
+    def eliminar_pelicula(self, cine, titulo_pelicula):
+        for p in cine.cartelera:
+            if p.titulo == titulo_pelicula:
+                cine.cartelera.remove(p)
+                print(f"Película '{titulo_pelicula}' eliminada de la cartelera del cine '{cine.nombre}'.")
+                return
+        print(f"No se encontro pelicula '{titulo_pelicula}' en la cartelera")
+
+    def consultar_cartelera(self, cine):
+        print(f"\nCartelera actual del cine '{cine.nombre}':")
+        cine.mostrar_cartelera()
