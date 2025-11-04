@@ -275,12 +275,12 @@ class Cliente(Persona):
             if b.codigo == codigo:
                 boleto_encontrado = b
                 break
-            if boleto_encontrado:
-                cine.cancelar_boletos(codigo)
-                self.boletos.remove(boleto_encontrado)
-                print(f"{self.nombre} cancelo el boleto con codigo {codigo}")
-            else:
-                print(f"No se encontro ningun boleto con el codigo {codigo}en el historial del cliente")
+        if boleto_encontrado:
+            cine.cancelar_boletos(codigo)
+            self.boletos.remove(boleto_encontrado)
+            print(f"{self.nombre} cancelo el boleto con codigo {codigo}")
+        else:
+            print(f"No se encontro ningun boleto con el codigo {codigo}en el historial del cliente")
 
 
     def mostrar_boletos(self):
@@ -303,6 +303,7 @@ class Administrador(Cliente):
 
     def agregar_pelicula(self, cine, pelicula):
         print(f"\n{self.nombre} está agregando una nueva película al cine '{cine.nombre}'...")
+        cine.agregar_pelicula(pelicula)
 
 
     def eliminar_pelicula(self, cine, titulo_pelicula):
