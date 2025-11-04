@@ -162,3 +162,88 @@ class Cine:
             print("✅ Excelente elección, la sala está bastante libre.")
         else:
             print(" La ocupación es moderada, hay buena disponibilidad de asientos.")
+
+@dataclass
+class Pelicula:
+    titulo: str
+    genero: str
+    duracion: int
+    clasificacion: int
+    horarios: list[str] = field(default_factory=list)
+
+    def mostrar_informacion(self):
+        print(f"\nPelícula: {self.titulo}")
+        print(f"Género: {self.genero}")
+        print(f"Duración: {self.duracion} minutos")
+        print(f"Clasificación: {self.clasificacion}+ años")
+        print(f"Horarios disponibles: {', '.join(self.horarios) if self.horarios else 'No definidos'}")
+
+    def agregar_horario(self, horario):
+        if horario not in self.horarios:
+            self.horarios.append(horario)
+            print(f"Horario {horario} agregado para '{self.titulo}'.")
+        else:
+            print(f"El horario {horario} ya existe para esta pelicula.")
+
+    def eliminar_horario(self, horario):
+        if horario in self.horarios:
+            self.horarios.remove(horario)
+            print(f"Horario {horario} eliminado de '{self.titulo}'.")
+        else:
+            print(f"El horario {horario} no existe en esta pelicula.")
+
+    def tiene_horario(self, horario):
+        return horario in self.horarios
+
+
+@dataclass
+class Sala:
+    numero: int
+    filas: int = 10
+    columnas: int = 10
+    asientos: dict[str, bool] = field(default_factory=dict)
+
+    def __post_init__(self):
+        if not self.asientos:
+            for fila in range(self.filas):
+                letra = chr(65 + fila)
+                for col in range(1, self.columnas + 1):
+                    asiento = f"{letra}{col}"
+                    self.asientos[asiento] = False
+
+    def mostrar_asientos(self):
+        print(f"\nPlano de asientos - Sala {self.numero}")
+        for fila in range(self.filas):
+            letra = chr(65 + fila)
+            fila_asientos = []
+            for col in range(1, self.columnas + 1):
+                asiento = f"{letra}{col}"
+                estado = "❌" if self.asientos[asiento] else "🟩"
+                fila_asientos.append(estado)
+            print(f"{letra}: {' '.join(fila_asientos)}")
+        print("🟩 Disponible | ❌ Ocupado\n")
+
+
+@dataclass
+class Boleto:
+    codigo: str
+    pelicula: str
+    horario: str
+    asientos: list[str]
+    cliente: str
+    coleccionables: Optional[str] = None
+    fecha_compra: datetime = field(default_factory=datetime.now)
+
+    def mostrar_detalles(self):
+        print("\n--- Detalles del Boleto ---")
+        print(f"Código: {self.codigo}")
+        print(f"Película: {self.pelicula}")
+        print(f"Horario: {self.horario}")
+        print(f"Asientos: {', '.join(self.asientos)}")
+        print(f"Cliente: {self.cliente}")
+        print(f"Fecha de compra: {self.fecha_compra.strftime('%Y-%m-%d %H:%M:%S')}")
+        if self.coleccionables:
+            print(f"Coleccionable incluido: {self.coleccionables}")
+        else:
+            print("Coleccionable: Ninguno")
+        print("------------------------------\n")
