@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CINEMAX - Sistema de Cine</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <!-- HEADER -->
+    <header class="header">
+        <div class="container header-content">
+            <div class="logo">
+                <svg class="logo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <rect x="2" y="7" width="20" height="15" rx="2" ry="2"></rect>
+                    <polyline points="7 2 12 7 17 2"></polyline>
+                </svg>
+                <h1>CINEMAX</h1>
+            </div>
+            <nav class="nav">
+                <button class="nav-btn active" data-view="home">CARTELERA</button>
+                <button class="nav-btn" data-view="profile">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                    MIS BOLETOS
+                </button>
+                <button class="nav-btn" data-view="admin" id="adminBtn" style="display: none;">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <line x1="18" y1="20" x2="18" y2="10"></line>
+                        <line x1="12" y1="20" x2="12" y2="4"></line>
+                        <line x1="6" y1="20" x2="6" y2="14"></line>
+                    </svg>
+                    ADMIN
+                </button>
+                <button class="nav-btn" id="loginBtn">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+                        <polyline points="10 17 15 12 10 7"></polyline>
+                        <line x1="15" y1="12" x2="3" y2="12"></line>
+                    </svg>
+                    <span id="userNameDisplay"></span>
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- MODAL LOGIN -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" id="closeLogin">&times;</span>
+            <h2>Iniciar Sesión</h2>
+            <form id="loginForm">
+                <input type="email" id="loginEmail" placeholder="Correo electrónico" required>
+                <input type="password" id="loginPassword" placeholder="Contraseña" required>
+                <button type="submit" class="modal-btn">Entrar</button>
+            </form>
+            <p class="modal-footer">¿No tienes cuenta? <a href="#" id="showRegister">Regístrate aquí</a></p>
+        </div>
+    </div>
+
+    <!-- MODAL REGISTRO -->
+    <div id="registerModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" id="closeRegister">&times;</span>
+            <h2>Crear Cuenta</h2>
+            <form id="registerForm">
+                <input type="text" id="registerName" placeholder="Nombre completo" required>
+                <input type="email" id="registerEmail" placeholder="Correo electrónico" required>
+                <input type="password" id="registerPassword" placeholder="Contraseña" required>
+                <button type="submit" class="modal-btn">Registrarse</button>
+            </form>
+            <p class="modal-footer">¿Ya tienes cuenta? <a href="#" id="showLogin">Inicia sesión aquí</a></p>
+        </div>
+    </div>
+
+    <!-- VISTA HOME -->
+    <div id="homeView" class="view active">
+        <!-- Slider de Estrenos -->
+        <div class="hero-slider">
+            <div class="slider-track" id="sliderTrack"></div>
+            <button class="slider-btn prev" id="prevBtn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <polyline points="15 18 9 12 15 6"></polyline>
+                </svg>
+            </button>
+            <button class="slider-btn next" id="nextBtn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Grid de Películas -->
+        <div class="container movies-section">
+            <h2 class="section-title">En Cartelera</h2>
+            <div class="movies-grid" id="moviesGrid"></div>
+        </div>
+    </div>
+
+    <!-- VISTA DETALLES -->
+    <div id="detailsView" class="view">
+        <div class="movie-hero" id="movieHero"></div>
+        <div class="container movie-details-content" id="movieDetails"></div>
+    </div>
+
+    <!-- VISTA SELECCIÓN DE ASIENTOS -->
+    <div id="seatsView" class="view">
+        <div class="container seats-container">
+            <button class="back-btn" id="backToDetails">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <polyline points="15 18 9 12 15 6"></polyline>
+                </svg>
+                Volver
+            </button>
+            <div class="seats-layout">
+                <div class="seats-main">
+                    <h2 class="movie-title" id="seatsMovieTitle"></h2>
+                    <p class="movie-time" id="seatsMovieTime"></p>
+
+                    <div class="screen-area">
+                        <div class="screen"></div>
+                        <p class="screen-label">PANTALLA</p>
+                    </div>
+
+                    <div class="seats-grid" id="seatsGrid"></div>
+
+                    <div class="seats-legend">
+                        <div class="legend-item">
+                            <div class="seat-demo available"></div>
+                            <span>Disponible</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="seat-demo selected"></div>
+                            <span>Seleccionado</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="seat-demo occupied"></div>
+                            <span>Ocupado</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="seats-summary" id="seatsSummary">
+                    <h3>Resumen de Compra</h3>
+                    <div class="summary-details">
+                        <div class="summary-item">
+                            <p class="summary-label">Película</p>
+                            <p class="summary-value" id="summaryMovie"></p>
+                        </div>
+                        <div class="summary-item">
+                            <p class="summary-label">Horario</p>
+                            <p class="summary-value" id="summaryTime"></p>
+                        </div>
+                        <div class="summary-item">
+                            <p class="summary-label">Asientos Seleccionados</p>
+                            <p class="summary-value" id="summarySeats">Ninguno</p>
+                        </div>
+                        <div class="summary-item">
+                            <p class="summary-label">Coleccionable (Opcional)</p>
+                            <select id="collectibleSelect" class="collectible-select">
+                                <option value="">Ninguno</option>
+                                <option value="Vaso Coleccionable">🥤 Vaso Coleccionable (+$8,000)</option>
+                                <option value="Poster Exclusivo">🖼️ Poster Exclusivo (+$15,000)</option>
+                                <option value="Combo Premium">🍿 Combo Premium (+$25,000)</option>
+                                <option value="Figura Coleccionable">🎁 Figura Coleccionable (+$35,000)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="summary-total">
+                        <div class="total-row">
+                            <span>Boletos</span>
+                            <span id="ticketsPrice">$0</span>
+                        </div>
+                        <div class="total-row">
+                            <span>Coleccionable</span>
+                            <span id="collectiblePrice">$0</span>
+                        </div>
+                        <div class="total-row main">
+                            <span>Total</span>
+                            <span id="total">$0</span>
+                        </div>
+                    </div>
+                    <button class="buy-btn" id="buyBtn" disabled>COMPRAR BOLETOS</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- VISTA PERFIL -->
+    <div id="profileView" class="view">
+        <div class="container profile-container">
+            <div class="profile-header">
+                <svg class="profile-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <rect x="2" y="7" width="20" height="4" rx="1"></rect>
+                    <rect x="2" y="15" width="20" height="4" rx="1"></rect>
+                    <path d="M12 3v18"></path>
+                </svg>
+                <h2>Mis Boletos</h2>
+            </div>
+            <div id="ticketsList"></div>
+        </div>
+    </div>
+
+    <!-- VISTA ADMIN -->
+    <div id="adminView" class="view">
+        <div class="container admin-container">
+            <div class="admin-header">
+                <svg class="admin-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <line x1="18" y1="20" x2="18" y2="10"></line>
+                    <line x1="12" y1="20" x2="12" y2="4"></line>
+                    <line x1="6" y1="20" x2="6" y2="14"></line>
+                </svg>
+                <h2>Panel de Administración</h2>
+            </div>
+
+            <div class="admin-grid">
+                <!-- Gestionar Cartelera -->
+                <div class="admin-card">
+                    <div class="admin-card-header">
+                        <h3>Gestionar Cartelera</h3>
+                        <button class="add-btn" id="toggleAddForm">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <line x1="12" y1="5" x2="12" y2="19"></line>
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <form id="addMovieForm" class="add-movie-form" style="display: none;">
+                        <input type="text" id="movieTitle" placeholder="Título" required>
+                        <input type="text" id="movieGenre" placeholder="Género" required>
+                        <input type="number" id="movieDuration" placeholder="Duración (minutos)" required>
+                        <input type="number" id="movieRating" placeholder="Clasificación (edad)" required>
+                        <input type="text" id="movieSchedule" placeholder="Horarios (separados por coma)" required>
+                        <button type="submit" class="submit-btn">Agregar Película</button>
+                    </form>
+
+                    <div class="movies-list" id="adminMoviesList"></div>
+                </div>
+
+                <!-- Estadísticas -->
+                <div class="admin-card">
+                    <h3>Estadísticas del Cine</h3>
+                    <div class="stats-content" id="statsContent">
+                        <div class="stat-item">
+                            <p class="stat-label">Película Más Vendida</p>
+                            <p class="stat-value" id="statTopMovie">Cargando...</p>
+                            <p class="stat-subtitle" id="statTopMovieSales"></p>
+                        </div>
+
+                        <div class="stat-item">
+                            <p class="stat-label">Ocupación Total</p>
+                            <div class="progress-bar-container">
+                                <div class="progress-bar" id="progressBar"></div>
+                            </div>
+                            <div class="progress-text">
+                                <span class="occupation-percent" id="occupationPercent">0%</span>
+                            </div>
+                            <p class="stat-subtitle" id="occupationDetails"></p>
+                        </div>
+
+                        <div class="stat-item">
+                            <p class="stat-label">Ventas por Película</p>
+                            <div class="sales-chart" id="salesChart"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
